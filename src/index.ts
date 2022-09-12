@@ -1,6 +1,8 @@
 import { createServer } from "http";
 import express from "express";
 import { ApolloServer, gql } from "apollo-server-express";
+import prisma from "./prisma/client";
+
 
 const startServer = async () => {
   const app = express();
@@ -8,13 +10,22 @@ const startServer = async () => {
 
   const typeDefs = gql`
     type Query {
-      hello: String
+      boards: [Board]
+    }
+
+    type Board {
+    id: ID!
+    title: String!
+    description: String 
+    path: String!
     }
   `;
 
   const resolvers = {
     Query: {
-      hello: () => "Hello World",
+      boards: () => {
+        return prisma.board.findMany()
+      }
     },
   };
 
@@ -32,10 +43,10 @@ const startServer = async () => {
 
   httpServer.listen(
     {
-      port: process.env.PORT || 4000,
+      port: process.env.PORT || 4001,
     },
     () => {
-      console.log(`Server listenning on 4000: ${apolloServer.graphqlPath}`);
+      console.log(`Server listenning on 4001 ${apolloServer.graphqlPath}`);
     }
   );
 };
